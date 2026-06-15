@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "creation": "2026-06-12 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "default_warehouse",
+  "auto_reserve",
+  "block_oversell"
+ ],
+ "fields": [
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable stock locking",
+   "default": "1",
+   "description": "ปิดสวิตช์นี้แล้วระบบจะไม่ reserve/guard ใด ๆ (Sales Order ทำงานแบบมาตรฐาน ERPNext)"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse",
+   "description": "คลังเดียวที่ใช้ตัด/จองสต๊อก เติมให้ item row ที่ยังไม่ระบุคลัง"
+  },
+  {
+   "fieldname": "auto_reserve",
+   "fieldtype": "Check",
+   "label": "Reserve stock on Sales Order submit",
+   "default": "1",
+   "description": "เปิดบิล (submit Sales Order) แล้วล็อค available ทันที"
+  },
+  {
+   "fieldname": "block_oversell",
+   "fieldtype": "Check",
+   "label": "Block oversell",
+   "default": "1",
+   "description": "ถ้า available < จำนวนที่ขอ ให้บล็อกการ submit (ไม่ปล่อยให้จองเกิน)"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-06-12 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "KGF Stock",
+ "name": "KGF Stock Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "Stock Manager",
+   "read": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
