@@ -5,6 +5,15 @@ app_description = "Stock reservation on Sales Order, deduction on Delivery Note"
 app_email = "ai.developer@kgarden.local"
 app_license = "MIT"
 
+add_to_apps_screen = [
+    {
+        "name": "bytehr_connector",
+        "logo": "/assets/bytehr_connector/images/bytehr-logo.svg",
+        "title": "ByteHR",
+        "route": "/app/bytehr-timesheet",
+    }
+]
+
 # Stock model:
 #   open bill (B2C / B2B / Store app) -> Sales Order submit -> RESERVE (lock available)
 #   confirm/ship  ("เปิด PO")          -> Delivery Note submit -> DEDUCT on-hand (native)
