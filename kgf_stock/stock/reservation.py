@@ -73,8 +73,15 @@ def reserve_on_submit(doc, method=None):
 
     # Native v15+ reservation. Reserves min(available, ordered) per item; the
     # oversell guard above already ensured full availability when enabled.
+    # Run as system: reservation is automation, so a minimal B2C operator role
+    # (no stock permissions) can still submit and lock stock.
     if hasattr(doc, "create_stock_reservation_entries"):
-        doc.create_stock_reservation_entries(notify=False)
+        prev = frappe.flags.ignore_permissions
+        frappe.flags.ignore_permissions = True
+        try:
+            doc.create_stock_reservation_entries(notify=False)
+        finally:
+            frappe.flags.ignore_permissions = prev
     else:
         frappe.log_error(
             title="KGF Stock: reservation unavailable",
@@ -116,7 +123,9 @@ def release_on_cancel(doc, method=None):
     )
     for name in leftover:
         try:
-            frappe.get_doc("Stock Reservation Entry", name).cancel()
+            sre = frappe.get_doc("Stock Reservation Entry", name)
+            sre.flags.ignore_permissions = True  # automation, not a user action
+            sre.cancel()
         except Exception:
             frappe.log_error(
                 title="KGF Stock: failed to release reservation",

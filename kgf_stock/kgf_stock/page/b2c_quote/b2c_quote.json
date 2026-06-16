@@ -13,6 +13,9 @@
  "page_name": "b2c-quote",
  "roles": [
   {
+   "role": "B2C Operator"
+  },
+  {
    "role": "Sales User"
   },
   {
