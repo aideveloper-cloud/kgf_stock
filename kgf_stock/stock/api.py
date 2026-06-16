@@ -23,6 +23,60 @@ def _loads(value):
 
 
 @frappe.whitelist()
+def create_b2c_document(doctype, customer, items, discount_amount=0, warehouse=None):
+    """Create a B2C document from the custom desk page.
+
+    doctype: "Quotation" (just a quote, no stock lock) or "Sales Order"
+             (locks stock via the kgf_stock reservation hook).
+    items:   list of {item_code, qty, rate}
+    A flat discount_amount is applied on the grand total.
+    """
+    items = _loads(items)
+    if doctype not in ("Quotation", "Sales Order"):
+        frappe.throw(_("Unsupported doctype {0}").format(doctype))
+    if not customer:
+        frappe.throw(_("กรุณาเลือกลูกค้า"))
+    rows = [it for it in (items or []) if it.get("item_code") and float(it.get("qty") or 0) > 0]
+    if not rows:
+        frappe.throw(_("กรุณาเพิ่มรายการสินค้าอย่างน้อย 1 รายการ"))
+
+    wh = warehouse or frappe.db.get_single_value("KGF Stock Settings", "default_warehouse")
+
+    doc = frappe.new_doc(doctype)
+    doc.transaction_date = nowdate()
+    if doctype == "Quotation":
+        doc.quotation_to = "Customer"
+        doc.party_name = customer
+        # B2C quotes stay in ERPNext — never push to FlowAccount.
+        if doc.meta.has_field("flowaccount_entity"):
+            doc.flowaccount_entity = "ERPNext Only"
+    else:
+        doc.customer = customer
+        doc.delivery_date = nowdate()
+
+    for it in rows:
+        row = {
+            "item_code": it["item_code"],
+            "qty": float(it["qty"]),
+            "rate": float(it.get("rate") or 0),
+            "warehouse": wh,
+        }
+        if doctype == "Sales Order":
+            row["delivery_date"] = nowdate()
+        doc.append("items", row)
+
+    disc = float(discount_amount or 0)
+    if disc > 0:
+        doc.apply_discount_on = "Grand Total"
+        doc.discount_amount = disc
+
+    doc.flags.ignore_permissions = True
+    doc.insert()
+    doc.submit()
+    return {"doctype": doctype, "name": doc.name, "grand_total": doc.grand_total}
+
+
+@frappe.whitelist()
 def open_b2c_bill(customer, items, external_ref=None, company=None, delivery_date=None):
     """Open a B2C bill = submit a Sales Order, which reserves stock.
 

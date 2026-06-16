@@ -60,6 +60,15 @@ kgf_stock.stock.api.ship_bill(sales_order="SAL-ORD-2026-00001")
 5. ส่งของใบแรก (Delivery Note) → on-hand เหลือ 7, reservation ถูก consume
 6. ยกเลิก Sales Order ที่ยังไม่ส่ง → available คืนกลับ
 
+## หน้า UI ออกใบเสนอราคา B2C
+
+custom desk page ที่ `/app/b2c-quote` — UI เราออกเอง (ไม่ใช่ฟอร์มมาตรฐาน):
+- เลือก **ใบเสนอราคา** (Quotation, ไม่ล็อคสต๊อก) หรือ **ใบสั่งขาย** (Sales Order, ล็อคสต๊อกผ่าน kgf_stock)
+- ค้นหาลูกค้า/สินค้าจากของจริงใน ERPNext (autocomplete), ดึงราคามาตรฐานอัตโนมัติ
+- เพิ่ม/ลบรายการ, คำนวณยอดสด, ใส่ส่วนลด (บาท)
+- บันทึก → สร้างเอกสารผ่าน `kgf_stock.stock.api.create_b2c_document` แล้วเปิดเอกสารที่สร้าง
+- ใบเสนอราคา B2C ตั้ง `flowaccount_entity = "ERPNext Only"` ให้อัตโนมัติ (ไม่ push เข้า FlowAccount)
+
 ## โครงสร้างไฟล์
 ```
 kgf_stock/
